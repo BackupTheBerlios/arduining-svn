@@ -5,7 +5,7 @@
  *     - select the nearest icon from the pointer
  *     - icons are moveable
  *     - the arm is prepositionned when the selected icon is within the coldZone (see minIconToColdZoneDistance)
- *     - the head is positionned with the reight iconHeight when whithin the hotZone  (see minIconToColdZoneDistance)
+ *     - the head is positionned with the reight shapeHeight when whithin the hotZone  (see minIconToColdZoneDistance)
  *     - motorControl() is the place to send data to wiring
  *
  *  todo :
@@ -26,7 +26,8 @@
 //Serial Serial;
 static byte squareangle = 10;
 
-Circle circleA, circleB, selectedIcon, circleHotzone, circleColdzone, circleTactileZoneIn, circleTactileZoneOut, circleTactileZoneMiddle;
+Circle circleA, circleB, circleHotzone, circleColdzone, circleTactileZoneIn, circleTactileZoneOut, circleTactileZoneMiddle;
+Icon selectedIcon, selectedIconSave;
 float paX, paY;
 PFont mafonte;
 float teta1, teta2, teta1save, teta2save, headsave;
@@ -34,7 +35,6 @@ float iconToZoneDistance;
 float minIconToZoneDistance; // min distance to activate the zone
 float minIconToColdZoneDistance; // min distance to pre-activate the zone
 float mouseXSave, mouseYSave, targetXSave, targetYSave;
-Circle selectedIconSave;
 boolean iconDragged = false;
 boolean mouseMoved = false;
 float selectionX = mouseX;
@@ -60,7 +60,7 @@ static float sizeIcon = 22.62;  // radius of the circle around an icon of 24 pix
 static float sizeHotzone = sizeInZoneOffset; // sensing zone
 static float sizeColdzone = 100; // pre-positionning of the head zone
 // dynamics
-static float frictionCoeff = 300;  // approx > 10X the highest icon height
+static float FRICTIONCOEFF = 300;  // approx > 10X the highest icon height
 static float speedDivider = 1;
 /////////////////////////////////////////////////////
 
@@ -90,11 +90,11 @@ void setup() {
 
     iconManager = new IconManager();
 
-  iconManager.add( new Circle( 400, 400, sizeIcon , color(255,50,255), "maurin", 30, loadImage("1.gif") ));
-  iconManager.add( new Circle( 450, 400, sizeIcon , color(255,100,200), "oren ", 25, loadImage("2.gif") ));
-  iconManager.add( new Circle( 400, 410, sizeIcon , color(255,150,150), "jb", 20, loadImage("3.gif") ));
-  iconManager.add( new Circle( 450, 420, sizeIcon , color(255,200,100), "dana", 15, loadImage("4.gif") ));
-  iconManager.add( new Circle( 200, 410, sizeIcon , color(255,255,50), "vince", 10, loadImage("5.gif") ));
+  iconManager.add( new Icon( 400, 400, sizeIcon , color(255,50,255), "maurin", 30, loadImage("1.gif") ));
+  iconManager.add( new Icon( 450, 400, sizeIcon , color(255,100,200), "oren ", 25, loadImage("2.gif") ));
+  iconManager.add( new Icon( 400, 410, sizeIcon , color(255,150,150), "jb", 20, loadImage("3.gif") ));
+  iconManager.add( new Icon( 450, 420, sizeIcon , color(255,200,100), "dana", 15, loadImage("4.gif") ));
+  iconManager.add( new Icon( 200, 410, sizeIcon , color(255,255,50), "vince", 10, loadImage("5.gif") ));
 
   ellipseMode(CENTER);
   smooth();
@@ -156,8 +156,8 @@ void draw() {
       //
       onIcon=true;
       if(iconDragged && selectedIconSave==selectedIcon) { // same icon selected in the previous row
-        selectedIcon.iconAni.dx = (mouseX - mouseXSave)/speedDivider; // set speed for the selected icon
-        selectedIcon.iconAni.dy = (mouseY - mouseYSave)/speedDivider;
+        selectedIcon.anim.dx = (mouseX - mouseXSave)/speedDivider; // set speed for the selected icon
+        selectedIcon.anim.dy = (mouseY - mouseYSave)/speedDivider;
       }
       else if( circleA.intersect( circleB )) {
         //
@@ -170,7 +170,7 @@ void draw() {
 
         drawArms();
 
-        motorControl(teta1, teta2, selectedIcon.iconHeight);
+        motorControl(teta1, teta2, selectedIcon.shapeHeight);
       }
     }
   }

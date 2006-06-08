@@ -1,49 +1,49 @@
-class Circle {
-  float x, y, r, d, r2, iconHeight;
+class Shape2D{
+  float x, y, r, d, shapeHeight=1 ;
   color c;
   String text;
-  PImage pic;
-  Animator iconAni = new Animator(0,0,0);
-  Circle() {
+  Behaviour anim = new Animator(0,0);
+
+  Shape2D(){
   }
-  Circle( float px, float py, float pr, color _c, String _text ) {
+  Shape2D( float px, float py, float pr, color _c, String _text ) {
     x = px;
     y = py;
+    c = _c;
     r = pr;
     d = 2*r;
-    r2 = r*r;
-    c=_c;
     text = new String(_text);
   }
-  Circle( float px, float py, float pr, color _c, String _text, float _iconHeight, PImage _pic ) {
-    x = px;
-    y = py;
+
+  float distance( Shape2D B ) {
+    return sqrt((x-B.x)*(x-B.x) + (y-B.y)*(y-B.y));
+  }
+  void animate(){
+    x = anim.processx(x);
+    y = anim.processy(y);
+  }
+
+}
+
+class Icon extends Shape2D {
+  PImage pic;
+
+  Icon(){
+  }
+  Icon( float px, float py, float pr, color _c, String _text, float _shapeHeight, PImage _pic ) {
+    super( px,  py,  pr,  _c,  _text);
+    shapeHeight = _shapeHeight;
     if(_pic!=null)  {
       r = sqrt(_pic.width*_pic.width + _pic.height*_pic.width)/2; 
-      //println("r = "+r);
+      pic = _pic;
     }
     else { 
       r = pr; 
     }
-    d = 2*r;
-    r2 = r*r;    
-    c=_c;
-    iconHeight = _iconHeight;
-    text = new String(_text);
-    pic = _pic;
-    iconAni.amort = 1 - iconHeight/frictionCoeff; // the higher the head, the heavier the file
-    iconAni.objSize = d;
-  }
+    anim = new Animator(1 - shapeHeight/FRICTIONCOEFF, d); // the higher the head, the heavier the file
+  }    
 
   void draw(){
-    if(DEBUG_MODE) { // dont draw circle only in DEBUG
-      noFill();       
-      strokeWeight(1);
-      stroke(c);
-      ellipse( x, y, r*2, r*2 );
-      fill(c);
-      if(pic==null) text (text, x - 20, y+r+8);
-    }
     if(pic!=null) {  // this is an icon, always draw its image
       if(x<r) x=r;   // icon move, and must remain within the screen
       else if(x>width-r) x=width-r;
@@ -54,18 +54,41 @@ class Circle {
       fill(c);
       text (text, x - pic.width/2, y+r+8);
     }
+    else
+      text (text, x - 20, y+r+8);
   }
   void draw(int intensity){
     tint(255, 255, 255, 126); // tint icon if selected
     fill(intensity);
-    this.draw();
+    draw();
+  }  
+}
+
+class Circle extends Shape2D {
+  float r2;
+
+  Circle() {
   }
+  Circle(float px, float py, float pr, color _c, String _text) {
+    super( px,  py,  pr,  _c,  _text);
+    r2 = r*r;
+  }
+
+  void draw(){
+    if(DEBUG_MODE) { // dont draw circle only in DEBUG
+      noFill();       
+      strokeWeight(1);
+      stroke(c);
+      ellipse( x, y, d, d );
+    }
+  }
+
   boolean intersect(float tx, float ty){ // intersection with the line from the center of the circle to that point
     float dx = tx - x;
     float dy = ty - y;
     float d2 = dx*dx + dy*dy;
-    float d = sqrt( d2 );
-    float ratio=r/d;     // thank to thales in triangle
+    float diag = sqrt( d2 );
+    float ratio=r/diag;     // thank to thales in triangle
     paX=x+ratio*dx;
     paY=y+ratio*dy;
     return true;
@@ -91,43 +114,4 @@ class Circle {
     //pbY = y2 + h*(cB.x - x)/d;
     return true;
   }  
-  float distance( Circle cB ) {
-    return sqrt((x-cB.x)*(x-cB.x) + (y-cB.y)*(y-cB.y));
-  }
-  void animate(){
-    x = iconAni.processx(x);
-    y = iconAni.processy(y);
-  }
-
-}
-
-class Animator {
-  float dx, dy;
-  float amort = 0;
-  float objSize=0;
-
-  Animator(float _dx, float _dy, float _objSize){
-    dx=_dx;
-    dy=_dy;
-    objSize=_objSize;
-  }
-
-  float processx(float xcoord){
-    dx *= amort;
-    float newx = (xcoord + dx);
-    if(newx>(width-objSize) || newx<objSize) {
-      dx *= -1;
-      newx = (xcoord + dx);
-    }  
-    return newx;
-  }
-  float processy(float ycoord){
-    dy *= amort;
-    float newy = (ycoord + dy);
-    if(newy>(height-objSize) || newy<objSize) {
-      dy *= -1;
-      newy = (ycoord + dy);
-    }  
-    return newy;
-  }
 }

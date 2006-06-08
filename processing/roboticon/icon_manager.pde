@@ -1,19 +1,19 @@
 class IconManager {
-  Circle[] icons = {  
-    new Circle(), new Circle(), new Circle(), new Circle(), new Circle()         }; // add new empty icons here if you want more
+  Icon[] icons = {  
+    new Icon(), new Icon(), new Icon(), new Icon(), new Icon()         }; // add new empty icons here if you want more
   int index;
 
   IconManager(){
     int index = 0;
   }
 
-  void add(Circle icon) {
+  void add(Icon icon) {
     icons[index++] = icon;
   }
-  Circle manage(boolean iconDragged, Circle selectedIcon){
+  Icon manage(boolean iconDragged, Icon _selectedIcon){
     float currentDistance=width;
     float testedDistance=0, iconsDistance;
-    Circle currentIcon = selectedIcon;//icons[0];
+    Icon currentIcon = _selectedIcon;//icons[0];
     float explodeDistance = 2*icons[0].r;
 
     for(  int i=0; i < icons.length; i++){
@@ -59,19 +59,19 @@ class IconManager {
     return currentIcon;
   }
 
-  void collide(Circle cA, Circle cB) { // elastic collision
+  void collide(Shape2D cA, Shape2D cB) { // elastic collision
     // transpose to local variable naming
     float x1 = cA.x;
     float y1 = cA.y;
-    float vx1 = cA.iconAni.dx;
-    float vy1 = cA.iconAni.dy;
-    float mass1 = cA.iconHeight;  
+    float vx1 = cA.anim.dx;
+    float vy1 = cA.anim.dy;
+    float mass1 = cA.shapeHeight;  
 
     float x2 = cB.x;
     float y2 = cB.y;
-    float vx2 = cB.iconAni.dx;
-    float vy2 = cB.iconAni.dy;
-    float mass2 = cB.iconHeight;
+    float vx2 = cB.anim.dx;
+    float vy2 = cB.anim.dy;
+    float mass2 = cB.shapeHeight;
 
     float ed=1; // for elactic collision (<= 1 in any case)
 
@@ -93,10 +93,10 @@ class IconManager {
     vy2=vaP2*ay+vb2*ax;
 
     // back to local variable 
-    cA.iconAni.dx =  vx1 ;
-    cA.iconAni.dy = vy1;
-    cB.iconAni.dx = vx2;
-    cB.iconAni.dy = vy2;    
+    cA.anim.dx =  vx1 ;
+    cA.anim.dy = vy1;
+    cB.anim.dx = vx2;
+    cB.anim.dy = vy2;    
 
     // from : http://www.phy.ntnu.edu.tw/ntnujava/viewtopic.php?t=19
   }  
